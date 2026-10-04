@@ -23,6 +23,18 @@ public class GlobalExceptionHandler {
                 .body(response);
     }
 
+    @ExceptionHandler(NemtalalhatoException.class)
+    public ResponseEntity<HibaResponse> handleNemtalalhatoException(
+            NemtalalhatoException exception) {
+
+        HibaResponse response =
+                new HibaResponse(exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(response);
+        }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<HibaResponse> handleHttpMessageNotReadableException(
             HttpMessageNotReadableException exception) {

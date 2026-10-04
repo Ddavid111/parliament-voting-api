@@ -3,22 +3,29 @@ package com.example.demo.service;
 import com.example.demo.dto.SzavazasRequest;
 import com.example.demo.dto.SzavazasResponse;
 import com.example.demo.dto.SzavazatRequest;
+import com.example.demo.dto.SzavazatResponse;
 import com.example.demo.entity.Szavazas;
 import com.example.demo.entity.Szavazat;
 import com.example.demo.repository.SzavazasRepository;
+import com.example.demo.repository.SzavazatRepository;
 import com.example.demo.exception.ValidaciosException;
+import com.example.demo.exception.NemtalalhatoException;
 
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.Optional;
 
 @Service
 public class SzavazasService {
 
     private final SzavazasRepository szavazasRepository;
 
-    public SzavazasService(SzavazasRepository szavazasRepository) {
+    private final SzavazatRepository szavazatRepository;
+
+    public SzavazasService(SzavazasRepository szavazasRepository, SzavazatRepository szavazatRepository) {
         this.szavazasRepository = szavazasRepository;
+        this.szavazatRepository = szavazatRepository;
     }
 
     public SzavazasResponse szavazasMentese(SzavazasRequest request) {
@@ -53,6 +60,22 @@ public class SzavazasService {
 
     private String generalSzavazasId() {
         return UUID.randomUUID().toString();
+    }
+
+    public SzavazatResponse szavazatlekerese(String szavazasId, String kepviselo) 
+    {
+
+        Optional<Szavazat> szavazat = szavazatRepository.findBySzavazasSzavazasIdAndKepviselo(szavazasId, kepviselo);
+
+        if (szavazat.isPresent()) {
+            return new SzavazatResponse(szavazat.get().getSzavazat());
+        }else {
+            
+            throw new NemtalalhatoException(
+                    "A megadott szavazás azonosítóval és képviselővel nem található szavazat."
+            );
+        }
+
     }
 
     private void validalas(SzavazasRequest request) {

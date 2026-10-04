@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.SzavazasRequest;
 import com.example.demo.dto.SzavazasResponse;
+import com.example.demo.dto.SzavazatResponse;
 import com.example.demo.service.SzavazasService;
 
 import org.springframework.http.HttpStatus;
@@ -29,4 +30,16 @@ public class SzavazasController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    @GetMapping ("/szavazat")
+    public ResponseEntity<SzavazatResponse> szavazatlekerese(
+            @RequestParam("szavazas") String szavazasId,
+            @RequestParam("kepviselo") String kepviselo) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(szavazasService.szavazatlekerese(szavazasId, kepviselo));
+    }
+
+
 }
