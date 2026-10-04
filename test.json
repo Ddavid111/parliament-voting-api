@@ -1,0 +1,21 @@
+{
+    "szavazatok":  [
+                       {
+                           "szavazat":  "i",
+                           "kepviselo":  "Kepviselo1"
+                       },
+                       {
+                           "szavazat":  "n",
+                           "kepviselo":  "Kepviselo2"
+                       },
+                       {
+                           "szavazat":  "t",
+                           "kepviselo":  "Kepviselo3"
+                       }
+                   ],
+    "targy":  "Végső teszt szavazás",
+    "tipus":  "j",
+    "elnok":  "Kepviselo1",
+    "eljaras":  "n",
+    "idopont":  "2026-10-03T18:00:00Z"
+}
