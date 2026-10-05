@@ -11,4 +11,10 @@ public interface SzavazasRepository extends JpaRepository<Szavazas, Long> {
     Optional<Szavazas> findBySzavazasId(String szavazasId);
 
     boolean existsByIdopont(Instant idopont);
+
+    Optional<Szavazas> findFirstByTipusAndIdopontBeforeOrderByIdopontDesc(
+        String tipus,
+        Instant idopont
+    );
+
 }

@@ -4,6 +4,7 @@ import com.example.demo.dto.SzavazasRequest;
 import com.example.demo.dto.SzavazasResponse;
 import com.example.demo.dto.SzavazatRequest;
 import com.example.demo.dto.SzavazatResponse;
+import com.example.demo.dto.EredmenyResponse;
 import com.example.demo.entity.Szavazas;
 import com.example.demo.entity.Szavazat;
 import com.example.demo.repository.SzavazasRepository;
@@ -14,6 +15,7 @@ import com.example.demo.exception.NemtalalhatoException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -76,6 +78,74 @@ public class SzavazasService {
             );
         }
 
+    }
+
+    public EredmenyResponse eredmenylekerese(String szavazasId) {
+
+        Optional<Szavazas> szavazas = szavazasRepository.findBySzavazasId(szavazasId);
+
+        if (szavazas.isPresent()) {
+            Szavazas megtalaltSzavazas = szavazas.get();
+
+            String tipus = megtalaltSzavazas.getTipus();
+
+            List<Szavazat> szavazatok = megtalaltSzavazas.getSzavazatok();
+
+            int igen = szavazatok.stream().filter(szavazat -> szavazat.getSzavazat().equals("i")).toList().size();
+            int nem = szavazatok.stream().filter(szavazat -> szavazat.getSzavazat().equals("n")).toList().size();
+            int tartozkodas = szavazatok.stream().filter(szavazat -> szavazat.getSzavazat().equals("t")).toList().size();
+
+            int kepviselokSzama = szavazatok.size();
+
+            if(tipus.equals("j"))
+            {
+                return new EredmenyResponse("F",kepviselokSzama, igen, nem, tartozkodas);
+            }
+            else if(tipus.equals("e"))
+            {
+                Optional<Szavazas> jelenletiSzavazas = szavazasRepository.findFirstByTipusAndIdopontBeforeOrderByIdopontDesc("j", megtalaltSzavazas.getIdopont());
+
+                if(!jelenletiSzavazas.isPresent()) {
+                    throw new NemtalalhatoException(
+                            "Nincs előző jelenléti szavazás az adott időpont előtt."
+                    );
+                }
+
+                Szavazas jelenlet = jelenletiSzavazas.get();
+
+                int kepviselokSzamaJelenlet = jelenlet.getSzavazatok().size();
+                if(igen > kepviselokSzamaJelenlet / 2)
+                {
+                    return new EredmenyResponse("F",kepviselokSzamaJelenlet, igen, nem, tartozkodas);
+                }
+                else
+                {
+                    return new EredmenyResponse("U",kepviselokSzamaJelenlet, igen, nem, tartozkodas);
+                }
+            }
+            else if(tipus.equals("m"))
+            {
+                if(igen > 100)
+                {
+                    return new EredmenyResponse("F",200, igen, nem, tartozkodas);
+                }
+                else
+                {
+                    return new EredmenyResponse("U",200, igen, nem, tartozkodas);
+                }
+
+            }
+            else {
+                throw new ValidaciosException(
+                    "A szavazás típusa csak j, e vagy m lehet."
+                );
+            }
+
+        } else {
+            throw new NemtalalhatoException(
+                    "A megadott szavazás azonosítóval nem található szavazás."
+            );
+        }
     }
 
     private void validalas(SzavazasRequest request) {

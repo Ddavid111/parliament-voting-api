@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.dto.SzavazasRequest;
 import com.example.demo.dto.SzavazasResponse;
 import com.example.demo.dto.SzavazatResponse;
+import com.example.demo.dto.EredmenyResponse;
 import com.example.demo.service.SzavazasService;
 
 import org.springframework.http.HttpStatus;
@@ -41,5 +42,13 @@ public class SzavazasController {
                 .body(szavazasService.szavazatlekerese(szavazasId, kepviselo));
     }
 
+    @GetMapping ("/eredmeny")
+    public ResponseEntity<EredmenyResponse> eredmenylekerese(
+            @RequestParam("szavazas") String szavazasId) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(szavazasService.eredmenylekerese(szavazasId));
+    }
 
 }
