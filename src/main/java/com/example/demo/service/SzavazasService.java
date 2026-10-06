@@ -5,6 +5,8 @@ import com.example.demo.dto.SzavazasResponse;
 import com.example.demo.dto.SzavazatRequest;
 import com.example.demo.dto.SzavazatResponse;
 import com.example.demo.dto.EredmenyResponse;
+import com.example.demo.dto.NapiSzavazasDTO;
+import com.example.demo.dto.NapiSzavazasokResponse;
 import com.example.demo.entity.Szavazas;
 import com.example.demo.entity.Szavazat;
 import com.example.demo.repository.SzavazasRepository;
@@ -15,8 +17,13 @@ import com.example.demo.exception.NemtalalhatoException;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import java.time.Instant;
 
 @Service
 public class SzavazasService {
@@ -146,6 +153,47 @@ public class SzavazasService {
                     "A megadott szavazás azonosítóval nem található szavazás."
             );
         }
+    }
+
+    public NapiSzavazasokResponse napiSzavazasokLekerese(LocalDate nap) {
+
+        Instant kezdet = nap.atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant veg = nap.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+
+        List<Szavazas> szavazasok = szavazasRepository.findByIdopontGreaterThanEqualAndIdopontLessThan(kezdet, veg);
+
+        List<NapiSzavazasDTO> napiSzavazasok = new ArrayList<>();
+        for (Szavazas szavazas : szavazasok) {
+            NapiSzavazasDTO napiSzavazasDTO = new NapiSzavazasDTO();
+            napiSzavazasDTO.setIdopont(szavazas.getIdopont());
+            napiSzavazasDTO.setTargy(szavazas.getTargy());
+            napiSzavazasDTO.setTipus(szavazas.getTipus());
+            napiSzavazasDTO.setElnok(szavazas.getElnok());
+            napiSzavazasDTO.setEljaras(szavazas.getEljaras());
+
+            EredmenyResponse eredmeny = eredmenylekerese(szavazas.getSzavazasId());
+        
+            napiSzavazasDTO.setEredmeny(eredmeny.getEredmeny());
+            napiSzavazasDTO.setKepviselokSzama(eredmeny.getKepviselok());
+
+            List<SzavazatRequest> szavazatDTOk = new ArrayList<>();
+
+            for (Szavazat szavazat : szavazas.getSzavazatok()) {
+                SzavazatRequest szavazatDTO = new SzavazatRequest();
+                szavazatDTO.setKepviselo(szavazat.getKepviselo());
+                szavazatDTO.setSzavazat(szavazat.getSzavazat());
+
+                szavazatDTOk.add(szavazatDTO);
+            }
+
+            napiSzavazasDTO.setSzavazatok(szavazatDTOk);
+
+            napiSzavazasok.add(napiSzavazasDTO);
+        }
+        NapiSzavazasokResponse response = new NapiSzavazasokResponse();
+        response.setSzavazasok(napiSzavazasok);
+
+        return response;
     }
 
     private void validalas(SzavazasRequest request) {

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.Instant;
 import java.util.Optional;
+import java.util.List;
 
 public interface SzavazasRepository extends JpaRepository<Szavazas, Long> {
 
@@ -15,6 +16,11 @@ public interface SzavazasRepository extends JpaRepository<Szavazas, Long> {
     Optional<Szavazas> findFirstByTipusAndIdopontBeforeOrderByIdopontDesc(
         String tipus,
         Instant idopont
+    );
+
+    List<Szavazas> findByIdopontGreaterThanEqualAndIdopontLessThan(
+        Instant kezdet,
+        Instant veg
     );
 
 }
