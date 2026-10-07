@@ -4,7 +4,10 @@ import com.example.demo.dto.SzavazasRequest;
 import com.example.demo.dto.SzavazasResponse;
 import com.example.demo.dto.SzavazatRequest;
 import com.example.demo.dto.SzavazatResponse;
+import com.example.demo.dto.AtlagResponse;
 import com.example.demo.dto.EredmenyResponse;
+import com.example.demo.dto.KulonlegesEljarasokResponse;
+import com.example.demo.dto.KulonlegesEljarasDTO;
 import com.example.demo.dto.NapiSzavazasDTO;
 import com.example.demo.dto.NapiSzavazasokResponse;
 import com.example.demo.entity.Szavazas;
@@ -192,6 +195,108 @@ public class SzavazasService {
         }
         NapiSzavazasokResponse response = new NapiSzavazasokResponse();
         response.setSzavazasok(napiSzavazasok);
+
+        return response;
+    }
+
+    public AtlagResponse atlagszamitas(Instant kezdet, Instant veg) {
+
+        List<Szavazas> szavazasok = szavazasRepository.findByIdopontGreaterThanEqualAndIdopontLessThan(kezdet, veg);
+        
+        int osszesReszvetel = 0;
+
+        for (Szavazas szavazas : szavazasok) {
+            if (!szavazas.getTipus().equals("j")) {
+                int resztvevokSzama = szavazas.getSzavazatok().size();
+                osszesReszvetel += resztvevokSzama;
+            }
+        }
+
+        double atlag = (double) osszesReszvetel / 200;
+        atlag = Math.round(atlag * 100.0) / 100.0;
+
+        return new AtlagResponse(atlag);
+    }
+
+    public KulonlegesEljarasokResponse kulonlegesEljarasokSzama(Instant kezdet, Instant veg)
+    {
+        
+        List<Szavazas> szavazasok = szavazasRepository.findByIdopontGreaterThanEqualAndIdopontLessThan(kezdet, veg);
+
+        int surgosElfogadott = 0;
+        int surgosElutasitott = 0;
+
+        int kivetelesElfogadott = 0;
+        int kivetelesElutasitott = 0;
+
+        int elteroElfogadott = 0;
+        int elteroElutasitott = 0;
+
+
+
+        for(Szavazas szavazas : szavazasok)
+        {
+            if(szavazas.getEljaras().equals("s")||szavazas.getEljaras().equals("k")||szavazas.getEljaras().equals("e"))
+            {
+               EredmenyResponse eredmeny = eredmenylekerese(szavazas.getSzavazasId());
+               if(szavazas.getEljaras().equals("s")){
+                    if(eredmeny.getEredmeny().equals("F"))
+                    {
+                        surgosElfogadott++;
+                    }
+                    else
+                    {
+                        surgosElutasitott++;
+                    }
+               }
+               else if(szavazas.getEljaras().equals("k"))
+               {
+                    if(eredmeny.getEredmeny().equals("F"))
+                    {
+                        kivetelesElfogadott++;
+                    }
+                    else
+                    {
+                        kivetelesElutasitott++;
+                    }
+               }
+               else if(szavazas.getEljaras().equals("e"))
+               {
+                    if(eredmeny.getEredmeny().equals("F"))
+                    {
+                        elteroElfogadott++;
+                    }
+                    else
+                    {
+                        elteroElutasitott++;
+                    }
+               }
+            }
+
+
+        }
+
+        List<KulonlegesEljarasDTO> kulonlegesEljarasok = new ArrayList<>();
+
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("s", "F", surgosElfogadott));
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("s", "U", surgosElutasitott));
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("k", "F", kivetelesElfogadott));
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("k", "U", kivetelesElutasitott));
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("e", "F", elteroElfogadott));
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("e", "U", elteroElutasitott));
+
+        int osszesElfogadott = surgosElfogadott + kivetelesElfogadott + elteroElfogadott;
+
+        int osszesElutasitott = surgosElutasitott + kivetelesElutasitott + elteroElutasitott;
+
+        int osszesSzavazas = osszesElfogadott + osszesElutasitott;
+
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("összes", "F", osszesElfogadott));
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("összes", "U", osszesElutasitott));
+        kulonlegesEljarasok.add(new KulonlegesEljarasDTO("összes", "összes", osszesSzavazas));
+    
+        KulonlegesEljarasokResponse response = new KulonlegesEljarasokResponse();
+        response.setSzavazasok(kulonlegesEljarasok);
 
         return response;
     }

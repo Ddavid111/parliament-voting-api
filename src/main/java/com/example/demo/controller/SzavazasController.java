@@ -1,10 +1,12 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.SzavazasRequest;
+import com.example.demo.dto.AtlagResponse;
 import com.example.demo.dto.SzavazasResponse;
 import com.example.demo.dto.SzavazatResponse;
 import com.example.demo.dto.EredmenyResponse;
 import com.example.demo.dto.NapiSzavazasokResponse;
+import com.example.demo.dto.KulonlegesEljarasokResponse;
 import com.example.demo.service.SzavazasService;
 
 import org.springframework.http.HttpStatus;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/szavazasok")
@@ -63,4 +66,23 @@ public class SzavazasController {
                 .body(szavazasService.napiSzavazasokLekerese(nap));
     }
 
+    @GetMapping ("/kepviselo-reszvetel-atlag")
+    public ResponseEntity<AtlagResponse> atlagszamitas(
+            @RequestParam("kezdet") Instant kezdet,
+            @RequestParam("veg") Instant veg) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(szavazasService.atlagszamitas(kezdet, veg));
+    }
+
+    @GetMapping ("/kulonleges-eljarasok-szama")
+    public ResponseEntity<KulonlegesEljarasokResponse> kulonlegesEljarasokSzama(
+            @RequestParam("kezdet") Instant kezdet,
+            @RequestParam("veg") Instant veg) {
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(szavazasService.kulonlegesEljarasokSzama(kezdet, veg));
+    }
 }
