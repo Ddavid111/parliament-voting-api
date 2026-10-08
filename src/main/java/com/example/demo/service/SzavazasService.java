@@ -124,7 +124,7 @@ public class SzavazasService {
                 Szavazas jelenlet = jelenletiSzavazas.get();
 
                 int kepviselokSzamaJelenlet = jelenlet.getSzavazatok().size();
-                if(igen > kepviselokSzamaJelenlet / 2)
+                if (igen * 2 > kepviselokSzamaJelenlet)
                 {
                     return new EredmenyResponse("F",kepviselokSzamaJelenlet, igen, nem, tartozkodas);
                 }
@@ -236,10 +236,10 @@ public class SzavazasService {
 
         for(Szavazas szavazas : szavazasok)
         {
-            if(szavazas.getEljaras().equals("s")||szavazas.getEljaras().equals("k")||szavazas.getEljaras().equals("e"))
+            if ("s".equals(szavazas.getEljaras()) || "k".equals(szavazas.getEljaras()) || "e".equals(szavazas.getEljaras()))
             {
                EredmenyResponse eredmeny = eredmenylekerese(szavazas.getSzavazasId());
-               if(szavazas.getEljaras().equals("s")){
+               if ("s".equals(szavazas.getEljaras())){
                     if(eredmeny.getEredmeny().equals("F"))
                     {
                         surgosElfogadott++;
@@ -249,7 +249,7 @@ public class SzavazasService {
                         surgosElutasitott++;
                     }
                }
-               else if(szavazas.getEljaras().equals("k"))
+               else if ("k".equals(szavazas.getEljaras()))
                {
                     if(eredmeny.getEredmeny().equals("F"))
                     {
@@ -260,7 +260,7 @@ public class SzavazasService {
                         kivetelesElutasitott++;
                     }
                }
-               else if(szavazas.getEljaras().equals("e"))
+               else if ("e".equals(szavazas.getEljaras()))
                {
                     if(eredmeny.getEredmeny().equals("F"))
                     {
