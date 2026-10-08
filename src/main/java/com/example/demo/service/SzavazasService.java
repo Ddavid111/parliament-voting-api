@@ -177,7 +177,7 @@ public class SzavazasService {
             EredmenyResponse eredmeny = eredmenylekerese(szavazas.getSzavazasId());
         
             napiSzavazasDTO.setEredmeny(eredmeny.getEredmeny());
-            napiSzavazasDTO.setKepviselokSzama(eredmeny.getKepviselok());
+            napiSzavazasDTO.setKepviselokSzama(eredmeny.getKepviselokSzama());
 
             List<SzavazatRequest> szavazatDTOk = new ArrayList<>();
 
